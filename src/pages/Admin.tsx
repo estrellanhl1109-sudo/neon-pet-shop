@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
+import { Switch } from "@/components/ui/switch";
 
 interface Category {
   id: string;
@@ -25,6 +26,10 @@ interface Product {
   stock: number;
   category_id: string;
   is_active: boolean;
+  discount_percentage: number;
+  offer_active: boolean;
+  offer_start_date: string | null;
+  offer_end_date: string | null;
 }
 
 const Admin = () => {
@@ -39,6 +44,10 @@ const Admin = () => {
     price: "",
     stock: "",
     category_id: "",
+    discount_percentage: "",
+    offer_active: false,
+    offer_start_date: "",
+    offer_end_date: "",
   });
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -149,6 +158,10 @@ const Admin = () => {
         stock: parseInt(formData.stock) || 0,
         category_id: formData.category_id,
         is_active: true,
+        discount_percentage: parseInt(formData.discount_percentage) || 0,
+        offer_active: formData.offer_active,
+        offer_start_date: formData.offer_start_date || null,
+        offer_end_date: formData.offer_end_date || null,
       });
 
       if (error) throw error;
@@ -164,6 +177,10 @@ const Admin = () => {
         price: "",
         stock: "",
         category_id: "",
+        discount_percentage: "",
+        offer_active: false,
+        offer_start_date: "",
+        offer_end_date: "",
       });
 
       fetchProducts();
@@ -298,6 +315,55 @@ const Admin = () => {
                   </Select>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="discount">Descuento (%)</Label>
+                  <Input
+                    id="discount"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={formData.discount_percentage}
+                    onChange={(e) => setFormData({ ...formData, discount_percentage: e.target.value })}
+                    className="bg-input border-primary/30"
+                  />
+                </div>
+
+                <div className="space-y-4 p-4 border border-primary/30 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="offer-active">Activar Oferta</Label>
+                    <Switch
+                      id="offer-active"
+                      checked={formData.offer_active}
+                      onCheckedChange={(checked) => setFormData({ ...formData, offer_active: checked })}
+                    />
+                  </div>
+
+                  {formData.offer_active && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="start-date">Fecha Inicio</Label>
+                        <Input
+                          id="start-date"
+                          type="datetime-local"
+                          value={formData.offer_start_date}
+                          onChange={(e) => setFormData({ ...formData, offer_start_date: e.target.value })}
+                          className="bg-input border-primary/30"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="end-date">Fecha Fin</Label>
+                        <Input
+                          id="end-date"
+                          type="datetime-local"
+                          value={formData.offer_end_date}
+                          onChange={(e) => setFormData({ ...formData, offer_end_date: e.target.value })}
+                          className="bg-input border-primary/30"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <Button type="submit" className="w-full neon-glow">
                   <Plus className="h-4 w-4 mr-2" />
                   Agregar Producto
@@ -324,13 +390,32 @@ const Admin = () => {
                   {products.map((product) => (
                     <div
                       key={product.id}
-                      className="flex justify-between items-center p-3 rounded-lg border border-primary/30 bg-background/50"
+                      className="flex justify-between items-center p-4 rounded-lg border border-primary/30 bg-background/50"
                     >
                       <div className="flex-1">
                         <h4 className="font-semibold">{product.name}</h4>
                         <p className="text-sm text-muted-foreground">
                           ${product.price.toFixed(2)} | Stock: {product.stock}
                         </p>
+                        {product.discount_percentage > 0 && (
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs bg-secondary/20 text-secondary px-2 py-0.5 rounded">
+                              Descuento: {product.discount_percentage}%
+                            </span>
+                            {product.offer_active && (
+                              <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded">
+                                Oferta Activa
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {product.offer_active && (product.offer_start_date || product.offer_end_date) && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {product.offer_start_date && `Desde: ${new Date(product.offer_start_date).toLocaleDateString()}`}
+                            {product.offer_start_date && product.offer_end_date && " | "}
+                            {product.offer_end_date && `Hasta: ${new Date(product.offer_end_date).toLocaleDateString()}`}
+                          </p>
+                        )}
                       </div>
                       <Button
                         variant="ghost"

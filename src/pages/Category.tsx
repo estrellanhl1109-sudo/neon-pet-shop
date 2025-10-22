@@ -6,6 +6,10 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Package } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
+import { useCart } from "@/contexts/CartContext";
+import { CartButton } from "@/components/CartButton";
+import { CartDrawer } from "@/components/CartDrawer";
+import { Badge } from "@/components/ui/badge";
 
 interface Product {
   id: string;
@@ -15,6 +19,10 @@ interface Product {
   image_url: string | null;
   stock: number;
   is_active: boolean;
+  discount_percentage: number;
+  offer_active: boolean;
+  offer_start_date: string | null;
+  offer_end_date: string | null;
 }
 
 interface Category {
@@ -29,8 +37,61 @@ const Category = () => {
   const [category, setCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cartOpen, setCartOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addItem } = useCart();
+
+  const calculateFinalPrice = (product: Product) => {
+    if (!product.offer_active || product.discount_percentage === 0) {
+      return product.price;
+    }
+    
+    const now = new Date();
+    if (product.offer_start_date && new Date(product.offer_start_date) > now) {
+      return product.price;
+    }
+    if (product.offer_end_date && new Date(product.offer_end_date) < now) {
+      return product.price;
+    }
+    
+    return product.price * (1 - product.discount_percentage / 100);
+  };
+
+  const getActiveDiscount = (product: Product) => {
+    if (!product.offer_active || product.discount_percentage === 0) {
+      return 0;
+    }
+    
+    const now = new Date();
+    if (product.offer_start_date && new Date(product.offer_start_date) > now) {
+      return 0;
+    }
+    if (product.offer_end_date && new Date(product.offer_end_date) < now) {
+      return 0;
+    }
+    
+    return product.discount_percentage;
+  };
+
+  const handleAddToCart = (product: Product) => {
+    const finalPrice = calculateFinalPrice(product);
+    const activeDiscount = getActiveDiscount(product);
+    
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: finalPrice,
+      originalPrice: product.price,
+      discount: activeDiscount,
+      image_url: product.image_url,
+    });
+    
+    toast({
+      title: "Producto agregado",
+      description: `${product.name} se agregó al carrito`,
+    });
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -149,22 +210,44 @@ const Category = () => {
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
+                      {getActiveDiscount(product) > 0 && (
+                        <Badge className="absolute top-2 right-2 bg-secondary text-secondary-foreground">
+                          -{getActiveDiscount(product)}%
+                        </Badge>
+                      )}
                     </div>
                   )}
                   {product.description && (
                     <p className="text-muted-foreground">{product.description}</p>
                   )}
                   <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold text-primary neon-text">
-                      ${product.price.toFixed(2)}
-                    </span>
+                    <div className="flex flex-col">
+                      {getActiveDiscount(product) > 0 ? (
+                        <>
+                          <span className="text-sm line-through text-muted-foreground">
+                            ${product.price.toFixed(2)}
+                          </span>
+                          <span className="text-2xl font-bold text-primary neon-text">
+                            ${calculateFinalPrice(product).toFixed(2)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-2xl font-bold text-primary neon-text">
+                          ${product.price.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-sm text-muted-foreground">
                       Stock: {product.stock}
                     </span>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full neon-glow" disabled={product.stock === 0}>
+                  <Button 
+                    className="w-full neon-glow" 
+                    disabled={product.stock === 0}
+                    onClick={() => handleAddToCart(product)}
+                  >
                     {product.stock === 0 ? "Agotado" : "Agregar al Carrito"}
                   </Button>
                 </CardFooter>
@@ -173,6 +256,9 @@ const Category = () => {
           </div>
         )}
       </main>
+      
+      <CartButton onClick={() => setCartOpen(true)} />
+      <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
     </div>
   );
 };

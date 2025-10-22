@@ -46,10 +46,14 @@ export type Database = {
           category_id: string
           created_at: string | null
           description: string | null
+          discount_percentage: number | null
           id: string
           image_url: string | null
           is_active: boolean | null
           name: string
+          offer_active: boolean | null
+          offer_end_date: string | null
+          offer_start_date: string | null
           price: number
           stock: number | null
           updated_at: string | null
@@ -58,10 +62,14 @@ export type Database = {
           category_id: string
           created_at?: string | null
           description?: string | null
+          discount_percentage?: number | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
           name: string
+          offer_active?: boolean | null
+          offer_end_date?: string | null
+          offer_start_date?: string | null
           price: number
           stock?: number | null
           updated_at?: string | null
@@ -70,10 +78,14 @@ export type Database = {
           category_id?: string
           created_at?: string | null
           description?: string | null
+          discount_percentage?: number | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
           name?: string
+          offer_active?: boolean | null
+          offer_end_date?: string | null
+          offer_start_date?: string | null
           price?: number
           stock?: number | null
           updated_at?: string | null
