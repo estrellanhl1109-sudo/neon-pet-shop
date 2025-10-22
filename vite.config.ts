@@ -8,10 +8,6 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    export default defineConfig({
-  plugins: [react()],
-  base: '/neon-pet-shop/', 
-});
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
