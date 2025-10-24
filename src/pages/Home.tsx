@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Shield, QrCode } from "lucide-react";
+import { LogOut, Shield } from "lucide-react";
 import CategoryCard from "@/components/CategoryCard";
 import { Session } from "@supabase/supabase-js";
 
@@ -108,25 +108,12 @@ const Home = () => {
     }
   };
 
-  const handleCatalogQR = () => {
-    navigate("/catalog-qr");
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-primary neon-glow">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-3xl font-bold neon-text">🐾 Pet Store</h1>
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCatalogQR}
-              className="border-secondary hover:bg-secondary/10"
-            >
-              <QrCode className="h-4 w-4 mr-2" />
-              Ver QR
-            </Button>
             {isAdmin && (
               <Button
                 variant="outline"

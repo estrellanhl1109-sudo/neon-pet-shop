@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/CartContext";
 import { CartButton } from "@/components/CartButton";
 import { CartDrawer } from "@/components/CartDrawer";
 import { Badge } from "@/components/ui/badge";
+import { ProductImageGallery } from "@/components/ProductImageUploader";
 
 interface Product {
   id: string;
@@ -203,20 +204,14 @@ const Category = () => {
                   <CardTitle className="text-xl">{product.name}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {product.image_url && (
-                    <div className="relative aspect-square overflow-hidden rounded-lg">
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                      {getActiveDiscount(product) > 0 && (
-                        <Badge className="absolute top-2 right-2 bg-secondary text-secondary-foreground">
-                          -{getActiveDiscount(product)}%
-                        </Badge>
-                      )}
-                    </div>
-                  )}
+                  <div className="relative">
+                    <ProductImageGallery productId={product.id} />
+                    {getActiveDiscount(product) > 0 && (
+                      <Badge className="absolute top-2 right-2 bg-secondary text-secondary-foreground z-10">
+                        -{getActiveDiscount(product)}%
+                      </Badge>
+                    )}
+                  </div>
                   {product.description && (
                     <p className="text-muted-foreground">{product.description}</p>
                   )}

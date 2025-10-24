@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 import { Switch } from "@/components/ui/switch";
+import { ProductImageUploader, ProductImageGallery } from "@/components/ProductImageUploader";
 
 interface Category {
   id: string;
@@ -386,45 +387,62 @@ const Admin = () => {
                   No hay productos registrados
                 </p>
               ) : (
-                <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                <div className="space-y-4 max-h-[600px] overflow-y-auto">
                   {products.map((product) => (
                     <div
                       key={product.id}
-                      className="flex justify-between items-center p-4 rounded-lg border border-primary/30 bg-background/50"
+                      className="p-4 rounded-lg border border-primary/30 bg-background/50 space-y-3"
                     >
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{product.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          ${product.price.toFixed(2)} | Stock: {product.stock}
-                        </p>
-                        {product.discount_percentage > 0 && (
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs bg-secondary/20 text-secondary px-2 py-0.5 rounded">
-                              Descuento: {product.discount_percentage}%
-                            </span>
-                            {product.offer_active && (
-                              <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded">
-                                Oferta Activa
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        {product.offer_active && (product.offer_start_date || product.offer_end_date) && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {product.offer_start_date && `Desde: ${new Date(product.offer_start_date).toLocaleDateString()}`}
-                            {product.offer_start_date && product.offer_end_date && " | "}
-                            {product.offer_end_date && `Hasta: ${new Date(product.offer_end_date).toLocaleDateString()}`}
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-semibold">{product.name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            ${product.price.toFixed(2)} | Stock: {product.stock}
                           </p>
-                        )}
+                          {product.discount_percentage > 0 && (
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs bg-secondary/20 text-secondary px-2 py-0.5 rounded">
+                                Descuento: {product.discount_percentage}%
+                              </span>
+                              {product.offer_active && (
+                                <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded">
+                                  Oferta Activa
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          {product.offer_active && (product.offer_start_date || product.offer_end_date) && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {product.offer_start_date && `Desde: ${new Date(product.offer_start_date).toLocaleDateString()}`}
+                              {product.offer_start_date && product.offer_end_date && " | "}
+                              {product.offer_end_date && `Hasta: ${new Date(product.offer_end_date).toLocaleDateString()}`}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(product.id)}
+                          className="text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(product.id)}
-                        className="text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      
+                      <div className="space-y-2 border-t border-primary/30 pt-3">
+                        <div className="flex items-center justify-between">
+                          <h5 className="text-sm font-medium">Imágenes del Producto</h5>
+                          <ProductImageUploader 
+                            productId={product.id} 
+                            onImageUploaded={fetchProducts}
+                          />
+                        </div>
+                        <ProductImageGallery 
+                          productId={product.id}
+                          isAdmin={true}
+                          onImageDeleted={fetchProducts}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
