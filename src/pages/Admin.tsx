@@ -412,12 +412,27 @@ const Admin = () => {
                             </div>
                           )}
                           {product.offer_active && (product.offer_start_date || product.offer_end_date) && (
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-xs text-muted-foreground mt-1 mb-3">
                               {product.offer_start_date && `Desde: ${new Date(product.offer_start_date).toLocaleDateString()}`}
                               {product.offer_start_date && product.offer_end_date && " | "}
                               {product.offer_end_date && `Hasta: ${new Date(product.offer_end_date).toLocaleDateString()}`}
                             </p>
                           )}
+                          
+                          <div className="space-y-2 mt-3">
+                            <div className="flex items-center justify-between">
+                              <h5 className="text-sm font-medium">Imágenes del Producto</h5>
+                              <ProductImageUploader 
+                                productId={product.id} 
+                                onImageUploaded={fetchProducts}
+                              />
+                            </div>
+                            <ProductImageGallery 
+                              productId={product.id}
+                              isAdmin={true}
+                              onImageDeleted={fetchProducts}
+                            />
+                          </div>
                         </div>
                         <Button
                           variant="ghost"
@@ -427,21 +442,6 @@ const Admin = () => {
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                      </div>
-                      
-                      <div className="space-y-2 border-t border-primary/30 pt-3">
-                        <div className="flex items-center justify-between">
-                          <h5 className="text-sm font-medium">Imágenes del Producto</h5>
-                          <ProductImageUploader 
-                            productId={product.id} 
-                            onImageUploaded={fetchProducts}
-                          />
-                        </div>
-                        <ProductImageGallery 
-                          productId={product.id}
-                          isAdmin={true}
-                          onImageDeleted={fetchProducts}
-                        />
                       </div>
                     </div>
                   ))}
